@@ -1,0 +1,512 @@
+# hikaku-ver.2.0
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>家具メモ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F1EB;
+  --surface: #FDFCF9;
+  --surface2: #EDEAE2;
+  --border: #D4CEBC;
+  --border2: #B8B1A0;
+  --text: #1A1814;
+  --text2: #6A6458;
+  --text3: #A09888;
+  --green: #2D6A4F;
+  --green-light: #E8F4EE;
+  --amber: #B5621E;
+  --red: #A83232;
+  --red-light: #FCF0F0;
+  --shadow: 0 2px 16px rgba(26,24,20,.09);
+  --shadow-lg: 0 8px 40px rgba(26,24,20,.16);
+  --r: 14px;
+  --rsm: 9px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ── Header ── */
+.hdr {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 13px 16px 11px;
+}
+.hdr-top { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+.logo { font-family: 'Noto Serif JP', serif; font-size: 20px; font-weight: 600; flex: 1; letter-spacing: -.3px; }
+.logo em { color: var(--green); font-style: normal; }
+.count-badge { font-size: 12px; color: var(--text3); background: var(--surface2); padding: 3px 10px; border-radius: 20px; }
+.search-wrap { position: relative; }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 14px; pointer-events: none; }
+input[type=search] {
+  width: 100%; height: 38px; padding: 0 11px 0 34px;
+  border: 1px solid var(--border); border-radius: var(--rsm);
+  background: var(--bg); font-family: inherit; font-size: 14px;
+  color: var(--text); outline: none; -webkit-appearance: none;
+}
+input[type=search]:focus { border-color: var(--green); }
+
+/* ── Chips ── */
+.chips { display: flex; gap: 6px; overflow-x: auto; padding: 9px 16px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0; font-family: inherit; font-size: 12px; font-weight: 500;
+  padding: 5px 13px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text2); cursor: pointer; white-space: nowrap; transition: all .15s;
+}
+.chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+
+/* ── Sort ── */
+.sort-row { display: flex; align-items: center; gap: 6px; padding: 0 16px 8px; font-size: 12px; color: var(--text3); }
+.sort-row select { font-family: inherit; font-size: 12px; color: var(--text2); border: none; background: transparent; outline: none; cursor: pointer; }
+
+/* ── Cards ── */
+.cards { padding: 8px 16px 110px; display: flex; flex-direction: column; gap: 14px; }
+@media (min-width: 600px) { .cards { display: grid; grid-template-columns: repeat(2,1fr); padding: 12px 20px 120px; } }
+@media (min-width: 920px) { .cards { grid-template-columns: repeat(3,1fr); max-width: 960px; margin: 0 auto; } }
+
+.card {
+  background: var(--surface); border-radius: var(--r);
+  border: 1px solid var(--border); overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: var(--shadow); transition: transform .18s;
+  animation: fadeUp .3s ease both;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.card:active { transform: scale(.985); }
+
+.thumb { width: 100%; height: 175px; background: var(--surface2); position: relative; overflow: hidden; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb-empty {
+  width: 100%; height: 100%; display: flex; align-items: center;
+  justify-content: center; flex-direction: column; gap: 6px; color: var(--text3); font-size: 12px;
+}
+.thumb-empty svg { opacity: .22; }
+.score-badge {
+  position: absolute; top: 9px; right: 9px;
+  background: rgba(26,24,20,.82); color: #fff;
+  border-radius: 9px; padding: 4px 10px;
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  backdrop-filter: blur(4px);
+}
+.cat-pill { position: absolute; bottom: 9px; left: 9px; background: var(--green); color: #fff; border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
+
+.cbody { padding: 13px; flex: 1; display: flex; flex-direction: column; gap: 9px; }
+.cname { font-size: 15px; font-weight: 700; line-height: 1.4; }
+.cmeta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.price-tag { font-size: 13px; font-weight: 700; color: var(--amber); }
+.price-none { font-size: 12px; color: var(--text3); }
+.dim-tag { font-size: 11px; color: var(--text3); background: var(--surface2); padding: 2px 8px; border-radius: 6px; }
+
+.crit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.crit-item { display: flex; flex-direction: column; gap: 2px; }
+.crit-label { font-size: 10px; color: var(--text3); letter-spacing: .3px; }
+.stars { display: flex; gap: 2px; }
+.star { font-size: 18px; cursor: pointer; color: var(--border2); transition: color .1s, transform .1s; line-height: 1; padding: 2px; }
+.star:active { transform: scale(1.35); }
+.star.on { color: #D4922A; }
+
+.memo {
+  width: 100%; font-family: inherit; font-size: 13px; line-height: 1.6;
+  color: var(--text2); background: var(--surface2);
+  border: 1px solid transparent; border-radius: var(--rsm);
+  padding: 8px 10px; resize: none; outline: none; min-height: 52px;
+  transition: border-color .15s;
+}
+.memo::placeholder { color: var(--text3); }
+.memo:focus { border-color: var(--green); background: var(--surface); }
+
+.cfoot { display: flex; gap: 6px; padding: 0 13px 11px; }
+.btn-edit {
+  flex: 1; height: 36px; border: 1px solid var(--border2);
+  border-radius: var(--rsm); background: transparent;
+  font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer;
+}
+.btn-edit:active { background: var(--surface2); }
+.btn-icon {
+  width: 36px; height: 36px; border: 1px solid var(--border);
+  border-radius: var(--rsm); background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; cursor: pointer; color: var(--text3);
+  text-decoration: none; transition: background .15s;
+}
+.btn-del:active { background: var(--red-light) !important; color: var(--red) !important; }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: 22px; right: 18px; z-index: 40;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--text); color: #fff; font-size: 28px;
+  border: none; box-shadow: var(--shadow-lg); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .18s, background .18s;
+}
+.fab:active { transform: scale(.9); background: var(--green); }
+
+/* ── Modal ── */
+.overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(26,24,20,.52);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .22s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  width: 100%; max-width: 520px; background: var(--surface);
+  border-radius: var(--r) var(--r) 0 0;
+  max-height: 93dvh; overflow-y: auto;
+  transform: translateY(28px);
+  transition: transform .26s cubic-bezier(.34,1.2,.64,1);
+  -webkit-overflow-scrolling: touch;
+}
+.overlay.open .modal { transform: translateY(0); }
+.drag-handle { width: 34px; height: 4px; background: var(--border2); border-radius: 2px; margin: 11px auto 0; }
+.mhdr {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px 12px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--surface); z-index: 1;
+}
+.mhdr h2 { font-size: 16px; font-weight: 700; }
+.btn-close { width: 30px; height: 30px; border-radius: 50%; border: none; background: var(--surface2); font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); }
+.mbody { padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; }
+.sec-label { font-size: 10px; font-weight: 700; letter-spacing: .8px; color: var(--text3); text-transform: uppercase; padding-bottom: 4px; border-bottom: 1px solid var(--border); margin-bottom: -2px; }
+.field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .8px; color: var(--text3); text-transform: uppercase; margin-bottom: 5px; }
+.field input, .field select, .field textarea {
+  width: 100%; font-family: inherit; font-size: 15px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--rsm);
+  padding: 10px 13px; outline: none; transition: border-color .15s;
+  -webkit-appearance: none; appearance: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); }
+.field textarea { resize: vertical; min-height: 68px; line-height: 1.5; }
+.frow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.frow3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.mfoot {
+  display: flex; gap: 10px; padding: 11px 18px 20px;
+  border-top: 1px solid var(--border);
+  position: sticky; bottom: 0; background: var(--surface);
+}
+.btn-cancel {
+  flex: 1; height: 46px; border: 1px solid var(--border2);
+  border-radius: var(--rsm); background: transparent;
+  font-family: inherit; font-size: 15px; font-weight: 500; color: var(--text2); cursor: pointer;
+}
+.btn-save {
+  flex: 2; height: 46px; border: none; border-radius: var(--rsm);
+  background: var(--text); color: #fff; font-family: inherit;
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: background .15s;
+}
+.btn-save:active { background: var(--green); }
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 60px 20px; color: var(--text3); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.empty-icon { font-size: 44px; opacity: .3; }
+.empty p { font-size: 13px; line-height: 1.8; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 88px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: rgba(26,24,20,.88); color: #fff;
+  border-radius: 20px; padding: 8px 18px; font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity .25s, transform .25s;
+  pointer-events: none; white-space: nowrap; z-index: 200;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (min-width: 920px) {
+  .hdr { padding: 14px calc(50% - 460px) 12px; }
+  .chips { padding: 9px calc(50% - 460px); }
+  .sort-row { padding: 0 calc(50% - 460px) 8px; }
+  .fab { right: calc(50% - 460px); }
+  .overlay { align-items: center; }
+  .modal { border-radius: var(--r); max-height: 88dvh; }
+  .drag-handle, .mhdr { position: static; }
+  .mfoot { position: static; }
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-top">
+    <div class="logo">家具<em>メモ</em></div>
+    <div class="count-badge" id="count-label">0 件</div>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="search" id="search" placeholder="商品名で検索..." oninput="render()">
+  </div>
+</header>
+
+<div class="chips" id="chips"></div>
+<div class="sort-row">
+  <span>並び替え：</span>
+  <select id="sort" onchange="render()">
+    <option value="added">追加順</option>
+    <option value="score">スコア高い順</option>
+    <option value="price_asc">価格安い順</option>
+    <option value="price_desc">価格高い順</option>
+  </select>
+</div>
+
+<div class="cards" id="cards"></div>
+<button class="fab" onclick="openModal()" title="商品を追加">+</button>
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="drag-handle"></div>
+    <div class="mhdr">
+      <h2 id="modal-title">商品を追加</h2>
+      <button class="btn-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="field">
+        <label>商品名 *</label>
+        <input id="f-name" type="text" placeholder="例：IKEA EKTORP ソファ">
+      </div>
+      <div class="frow2">
+        <div class="field">
+          <label>カテゴリ</label>
+          <select id="f-cat">
+            <option>ソファ</option><option>テーブル・デスク</option>
+            <option>チェア</option><option>ベッド・マットレス</option>
+            <option>収納・棚</option><option>照明</option><option>その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>価格（円）</label>
+          <input id="f-price" type="number" inputmode="numeric" placeholder="49800">
+        </div>
+      </div>
+
+      <div class="sec-label">サイズ（cm）</div>
+      <div class="frow3">
+        <div class="field"><label>幅 W</label><input id="f-w" type="number" inputmode="decimal" placeholder="200"></div>
+        <div class="field"><label>奥行 D</label><input id="f-d" type="number" inputmode="decimal" placeholder="90"></div>
+        <div class="field"><label>高さ H</label><input id="f-h" type="number" inputmode="decimal" placeholder="80"></div>
+      </div>
+      <div class="frow2">
+        <div class="field"><label>座面高（cm）</label><input id="f-sh" type="number" inputmode="decimal" placeholder="42"></div>
+        <div class="field"><label>重量（kg）</label><input id="f-wt" type="number" inputmode="decimal" placeholder="35"></div>
+      </div>
+
+      <div class="field">
+        <label>画像URL</label>
+        <input id="f-img" type="url" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label>ショップURL</label>
+        <input id="f-link" type="url" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label>メモ・備考</label>
+        <textarea id="f-memo" placeholder="色、実物確認メモ、気になる点など..."></textarea>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveItem()">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CATS = ['すべて','ソファ','テーブル・デスク','チェア','ベッド・マットレス','収納・棚','照明','その他'];
+const CRITERIA = ['デザイン','品質','コスパ','サイズ感'];
+const LS_KEY = 'kagu_memo_v1';
+
+let items = [];
+let nextId = 1;
+let editId = null;
+let activeCat = 'すべて';
+
+function persist() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ items, nextId })); } catch(e) {}
+}
+function hydrate() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) { const d = JSON.parse(raw); items = d.items||[]; nextId = d.nextId||1; return; }
+  } catch(e) {}
+  items = [
+    {id:1,name:'IKEA EKTORP 3人掛けソファ',cat:'ソファ',price:79900,
+     img:'https://images.ikea.com/is/image/IKEA/EKTORP_3seat-sofa_s5/0938761_PE793296_S5.JPG',
+     link:'https://www.ikea.com/jp/',memo:'ホワイト・ベージュが清潔感あり。カバー洗濯可能。',
+     w:218,d:88,h:88,sh:45,wt:null,scores:{デザイン:4,品質:3,コスパ:5,サイズ感:3}},
+    {id:2,name:'ニトリ Nポケット コイルソファ',cat:'ソファ',price:49900,
+     img:'',link:'',memo:'座り心地は良いが耐久性が不安。',
+     w:220,d:85,h:83,sh:42,wt:null,scores:{デザイン:3,品質:3,コスパ:4,サイズ感:4}},
+    {id:3,name:'無印良品 ソファ・3シーター',cat:'ソファ',price:119000,
+     img:'',link:'',memo:'シンプルで飽きない。値段が高め。',
+     w:208,d:85,h:73,sh:39,wt:null,scores:{デザイン:5,品質:4,コスパ:3,サイズ感:4}}
+  ];
+  nextId = 10; persist();
+}
+
+function totalScore(item) {
+  const v = Object.values(item.scores||{});
+  if (!v.length) return null;
+  return Math.round(v.reduce((a,b)=>a+b,0)/v.length*10)/10;
+}
+function fmtDims(item) {
+  const p = [];
+  if (item.w) p.push('W'+item.w);
+  if (item.d) p.push('D'+item.d);
+  if (item.h) p.push('H'+item.h);
+  return p.length ? p.join('×')+' cm' : '';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+function renderChips() {
+  document.getElementById('chips').innerHTML = CATS.map(c =>
+    `<button class="chip${activeCat===c?' active':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+}
+function setCat(c) { activeCat = c; render(); }
+
+function render() {
+  renderChips();
+  const q = document.getElementById('search').value.toLowerCase();
+  const sort = document.getElementById('sort').value;
+  let list = [...items];
+  if (activeCat !== 'すべて') list = list.filter(i=>i.cat===activeCat);
+  if (q) list = list.filter(i=>(i.name||'').toLowerCase().includes(q)||(i.cat||'').toLowerCase().includes(q));
+  if (sort==='score') list.sort((a,b)=>(totalScore(b)||0)-(totalScore(a)||0));
+  else if (sort==='price_asc') list.sort((a,b)=>(a.price||0)-(b.price||0));
+  else if (sort==='price_desc') list.sort((a,b)=>(b.price||0)-(a.price||0));
+
+  document.getElementById('count-label').textContent = list.length+' 件';
+  const el = document.getElementById('cards');
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🛋️</div><p>商品がありません<br>右下の ＋ から追加してみましょう</p></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map((item, idx) => {
+    const sc = totalScore(item);
+    const dims = fmtDims(item);
+    const extra = [];
+    if (item.sh) extra.push('座面高 '+item.sh+'cm');
+    if (item.wt) extra.push(item.wt+'kg');
+    const starsHtml = CRITERIA.map(c => `
+      <div class="crit-item">
+        <span class="crit-label">${c}</span>
+        <div class="stars">${[1,2,3,4,5].map(n =>
+          `<span class="star${(item.scores?.[c]||0)>=n?' on':''}" onclick="setStar(${item.id},'${c}',${n})">★</span>`
+        ).join('')}</div>
+      </div>`).join('');
+    const imgHtml = item.img
+      ? `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : '';
+    const emStyle = item.img ? 'style="display:none"' : '';
+    return `<div class="card" style="animation-delay:${idx*35}ms">
+      <div class="thumb">
+        ${imgHtml}
+        <div class="thumb-empty" ${emStyle}>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21,15 16,10 5,21"/>
+          </svg>
+          <span>画像なし</span>
+        </div>
+        ${sc!==null?`<div class="score-badge">${sc.toFixed(1)}</div>`:''}
+        <div class="cat-pill">${item.cat}</div>
+      </div>
+      <div class="cbody">
+        <div>
+          <div class="cname">${item.name}</div>
+          <div class="cmeta">
+            ${item.price?`<span class="price-tag">¥${item.price.toLocaleString()}</span>`:`<span class="price-none">価格未設定</span>`}
+            ${dims?`<span class="dim-tag">${dims}</span>`:''}
+            ${extra.map(d=>`<span class="dim-tag">${d}</span>`).join('')}
+          </div>
+        </div>
+        <div class="crit-grid">${starsHtml}</div>
+        <textarea class="memo" placeholder="メモを入力..." onblur="saveMemo(${item.id},this)">${item.memo||''}</textarea>
+      </div>
+      <div class="cfoot">
+        <button class="btn-edit" onclick="openModal(${item.id})">編集</button>
+        ${item.link?`<a class="btn-icon" href="${item.link}" target="_blank" rel="noopener" title="ショップへ">🔗</a>`:''}
+        <button class="btn-icon btn-del" onclick="delItem(${item.id})" title="削除">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setStar(id,c,n) {
+  const item = items.find(i=>i.id===id); if(!item) return;
+  item.scores = item.scores||{};
+  item.scores[c] = item.scores[c]===n ? 0 : n;
+  persist(); render();
+}
+function saveMemo(id,el) {
+  const item = items.find(i=>i.id===id);
+  if (item) { item.memo = el.value.trim(); persist(); }
+}
+function delItem(id) {
+  if (!confirm('この商品を削除しますか？')) return;
+  items = items.filter(i=>i.id!==id);
+  persist(); render(); showToast('削除しました');
+}
+
+function openModal(id=null) {
+  editId = id;
+  const m = id ? items.find(i=>i.id===id) : {};
+  document.getElementById('modal-title').textContent = id ? '商品を編集' : '商品を追加';
+  ['name','img','link'].forEach(k => document.getElementById('f-'+k).value = m[k]||'');
+  document.getElementById('f-cat').value = m.cat||'ソファ';
+  document.getElementById('f-price').value = m.price||'';
+  ['w','d','h','sh','wt'].forEach(k => document.getElementById('f-'+k).value = m[k]||'');
+  document.getElementById('f-memo').value = m.memo||'';
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-name').focus(), 300);
+}
+function closeModal() { document.getElementById('overlay').classList.remove('open'); editId=null; }
+function saveItem() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('商品名を入力してください'); return; }
+  const num = v => parseFloat(v)||null;
+  const data = {
+    name, cat: document.getElementById('f-cat').value,
+    price: parseInt(document.getElementById('f-price').value)||0,
+    w: num(document.getElementById('f-w').value),
+    d: num(document.getElementById('f-d').value),
+    h: num(document.getElementById('f-h').value),
+    sh: num(document.getElementById('f-sh').value),
+    wt: num(document.getElementById('f-wt').value),
+    img: document.getElementById('f-img').value.trim(),
+    link: document.getElementById('f-link').value.trim(),
+    memo: document.getElementById('f-memo').value.trim(),
+  };
+  if (editId) { Object.assign(items.find(i=>i.id===editId), data); showToast('更新しました'); }
+  else { items.push({id:nextId++, scores:{}, ...data}); showToast('追加しました'); }
+  closeModal(); persist(); render();
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+hydrate(); render();
+</script>
+</body>
+</html>
